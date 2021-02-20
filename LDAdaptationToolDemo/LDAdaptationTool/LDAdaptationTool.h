@@ -12,6 +12,8 @@
 
 @interface LDAdaptationTool : NSObject
 
++ (LDAdaptationTool *)defaultManager;
+
 /**
  *  获取屏幕的宽度 (支持屏幕旋转)
  */
@@ -83,6 +85,20 @@
  */
 + (NSString *)ld_getIOSVersion;
 
-
+/**
+ *  获取比例宽度
+ *  @return 如120.0
+ */
+- (CGFloat)ld_autoScaleW:(CGFloat)w;
+/**
+ *  获取比例高度
+ *  @return 如320.0
+ */
+- (CGFloat)ld_autoScaleH:(CGFloat)h;
+/**
+ *  获取比例字体大小
+ *  @return 如12.0
+ */
+- (CGFloat)ld_autoScaleFontSize:(CGFloat)fontSize;
 @end
 

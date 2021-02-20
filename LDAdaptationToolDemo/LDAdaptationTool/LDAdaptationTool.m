@@ -15,11 +15,65 @@
 #define KSCREENWIDTH_ROTATION ((LD_SCREEN_WIDTH>LD_SCREEN_HEIGHT) ? LD_SCREEN_HEIGHT : LD_SCREEN_WIDTH)
 #define KSCREENHEIGHT_ROTATION ((LD_SCREEN_WIDTH>LD_SCREEN_HEIGHT) ? LD_SCREEN_WIDTH : LD_SCREEN_HEIGHT)
 
+#pragma mark - define 机型
+#define LD_iPhone_4 [UIScreen mainScreen].bounds.size.width == 320 && [UIScreen mainScreen].bounds.size.height == 640
+#define LD_iPhone_5 [UIScreen mainScreen].bounds.size.width == 320 && [UIScreen mainScreen].bounds.size.height == 568
+#define LD_iPhone_6 [UIScreen mainScreen].bounds.size.width == 375 && [UIScreen mainScreen].bounds.size.height == 667
+#define LD_iPhone_6Plus [UIScreen mainScreen].bounds.size.width == 414 && [UIScreen mainScreen].bounds.size.height == 736
 
+@interface LDAdaptationTool ()
+
+@property(assign,nonatomic) BOOL iPhone_4;
+@property(assign,nonatomic) BOOL iPhone_5;
+@property(assign,nonatomic) BOOL iPhone_6;
+@property(assign,nonatomic) BOOL iPhone_6P;
+@property(assign,nonatomic) BOOL iPhone_X;
+
+//当前屏幕与设计尺寸(iPhone 11 Pro)宽度比率
+@property(nonatomic,assign)CGFloat autoSizeScaleW;
+//当前屏幕与设计尺寸(iPhone 11 Pro)高度比率
+@property(nonatomic,assign)CGFloat autoSizeScaleH;
+
+@end
 
 @implementation LDAdaptationTool
 
+static LDAdaptationTool *manager;
+
 #pragma mark - Public Api
+
++ (LDAdaptationTool *)defaultManager {
+    
+    @synchronized(self)
+    {
+        if (manager == nil)
+        {
+            manager = [[LDAdaptationTool alloc] init];
+            
+            manager.iPhone_4 = NO;
+            manager.iPhone_5 = NO;
+            manager.iPhone_6 = NO;
+            manager.iPhone_6P = NO;
+            manager.iPhone_X = NO;
+            
+            if (LD_iPhone_4) {
+                manager.iPhone_4 = YES;
+            }else if (LD_iPhone_5){
+                manager.iPhone_5 = YES;
+            }else if (LD_iPhone_6){
+                manager.iPhone_6 = YES;
+            }else if (LD_iPhone_6Plus){
+                manager.iPhone_6P = YES;
+            }else if ([LDAdaptationTool isIphoneXSeries]){
+                manager.iPhone_X = YES;
+            }
+            
+            [manager initAutoScaleSize];
+        }
+    }
+    return manager;
+}
+
 
 /**
  *  获取屏幕的宽度 (支持屏幕旋转)
@@ -210,6 +264,61 @@
 
 + (CGFloat)ld_getIOSVersionFloat {
     return [[UIDevice currentDevice].systemVersion floatValue];
+}
+
+/**
+ *  获取比例宽度
+ *  @return 如120.0
+ */
+- (CGFloat)ld_autoScaleW:(CGFloat)w {
+    w = w * self.autoSizeScaleW;
+    NSString *str = [NSString stringWithFormat:@"%.0f",w];
+    return str.floatValue;
+}
+/**
+ *  获取比例高度
+ *  @return 如320.0
+ */
+- (CGFloat)ld_autoScaleH:(CGFloat)h {
+    h = h * self.autoSizeScaleH;
+    NSString *str = [NSString stringWithFormat:@"%.0f",h];
+    return str.floatValue;
+}
+/**
+ *  获取比例字体大小
+ *  @return 如12.0
+ */
+- (CGFloat)ld_autoScaleFontSize:(CGFloat)fontSize {
+    
+    return [self ld_autoScaleH:fontSize];
+}
+
+#pragma mark - Private Api
+
+- (void)initAutoScaleSize
+{
+    if ((LD_iPhone_4) || (LD_iPhone_5) || (LD_iPhone_6) || (LD_iPhone_6Plus) || ([LDAdaptationTool isIphoneXSeries])) {
+        _autoSizeScaleW = LD_SCREEN_WIDTH / 375.0;
+        _autoSizeScaleH = LD_SCREEN_HEIGHT / 812.0;
+    }else{
+        _autoSizeScaleW = 1;
+        _autoSizeScaleH = 1;
+    }
+    
+    _autoSizeScaleW = LD_SCREEN_WIDTH / 375.0;
+    _autoSizeScaleH = LD_SCREEN_HEIGHT / 812.0;
+    float max = 1.5;
+    float min = 0.5;
+    if (_autoSizeScaleW > max) {
+        _autoSizeScaleW = max;
+    }else if (_autoSizeScaleW < min){
+        _autoSizeScaleW = min;
+    }
+    if (_autoSizeScaleH > max) {
+        _autoSizeScaleH = max;
+    }else if (_autoSizeScaleH < min){
+        _autoSizeScaleH = min;
+    }
 }
 
 

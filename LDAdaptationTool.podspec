@@ -3,7 +3,7 @@
 Pod::Spec.new do |spec|
 
   spec.name         = "LDAdaptationTool"
-  spec.version      = "0.0.5"
+  spec.version      = "0.0.6"
   spec.summary      = "UI、系统适配工具：LDAdaptationTool 、APP与手机系统的相关信息"
 
   spec.description  = <<-DESC
